@@ -4,3 +4,9 @@ name: Townshend
 
 author: Wehttam664
 softdepend: [TagAPI]
+
+commands:
+  townshend:
+    description: Basic Townshend command.
+    usage: '/townshend help'
+    aliases: ['town','t']

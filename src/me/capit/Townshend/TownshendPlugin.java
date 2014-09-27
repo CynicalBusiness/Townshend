@@ -20,12 +20,21 @@ public class TownshendPlugin extends JavaPlugin {
 	public static final String header = ChatColor.DARK_GRAY+"#"+ChatColor.YELLOW+"-----"+
 			ChatColor.DARK_GRAY+"["+ChatColor.WHITE+" Townshend "+ChatColor.DARK_GRAY+"]"
 			+ChatColor.YELLOW+"------------------------------------------"+ChatColor.DARK_GRAY+"#";
-	
 	public static final String footer = ChatColor.DARK_GRAY+"#"+
 			ChatColor.YELLOW+"------------------------------------------------------------"+
 			ChatColor.DARK_GRAY+"#";
 	
+	public static final String gHeader = ChatColor.DARK_GRAY+"#"+ChatColor.YELLOW+"-----"+
+			ChatColor.DARK_GRAY+"["+ChatColor.WHITE+" Townshend "+ChatColor.DARK_GRAY+"]"
+			+ChatColor.YELLOW+"----------------------------------"+ChatColor.DARK_GRAY+"#";
+	public static final String gFooter = ChatColor.DARK_GRAY+"#"+
+			ChatColor.YELLOW+"---------------------------------------------------"+ChatColor.DARK_GRAY+"#";
+	public static final String tag = ChatColor.DARK_GRAY+"["+ChatColor.YELLOW+"Townshend"+
+			ChatColor.DARK_GRAY+"] "+ChatColor.WHITE;
+	
 	public static File townsDir = null;
+	
+	public TownCommands commands = null;
 	
 	@Override
 	public void onEnable(){
@@ -34,7 +43,7 @@ public class TownshendPlugin extends JavaPlugin {
 		
 		console.sendMessage(header);
 		
-		console.sendMessage(ChatColor.WHITE+"Loading "+ChatColor.YELLOW+"file "+ChatColor.WHITE+"data...");
+		console.sendMessage(ChatColor.WHITE+"Loading "+ChatColor.YELLOW+"file data...");
 		saveDefaultConfig();
 		reloadConfig();
 		
@@ -49,11 +58,15 @@ public class TownshendPlugin extends JavaPlugin {
 				Town t = new Town(this, town.getName());
 				towns.add(t);
 				console.sendMessage(ChatColor.WHITE+" > Loaded data for "+ChatColor.LIGHT_PURPLE
-						+t.getName()+ChatColor.WHITE+".");
+						+t.getName()+ChatColor.WHITE+" ("+ChatColor.AQUA+t.ID+ChatColor.WHITE+").");
 			} catch (TownCreationException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		console.sendMessage(ChatColor.WHITE+"Hooking "+ChatColor.YELLOW+"commands...");
+		commands = new TownCommands(this);
+		this.getCommand("townshend").setExecutor(commands);
 		
 		console.sendMessage(ChatColor.WHITE+"Done loading!");
 		
@@ -77,5 +90,12 @@ public class TownshendPlugin extends JavaPlugin {
 			lowest = town.ID>lowest ? town.ID : lowest;
 		}
 		return lowest;
+	}
+	
+	public static Town getTownByName(String name){
+		for (Town town : towns){
+			if (town.getName().equalsIgnoreCase(name)) return town;
+		}
+		return null;
 	}
 }

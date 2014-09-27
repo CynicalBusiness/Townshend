@@ -1,0 +1,6 @@
+main: me.capit.Townshend.TownshendPlugin
+version: 1.00R1
+name: Townshend
+
+author: Wehttam664
+softdepend: [TagAPI]

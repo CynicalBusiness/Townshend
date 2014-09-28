@@ -33,6 +33,7 @@ public class Town {
 	private String desc;
 	
 	private List<UUID> players = new ArrayList<UUID>();
+	private List<UUID> mods = new ArrayList<UUID>();
 	
 	// New Town
 	public Town(TownshendPlugin plugin, UUID owner, String name) throws TownCreationException, IOException{
@@ -41,7 +42,7 @@ public class Town {
 		file.createNewFile();
 		this.owner = owner;
 		this.name = name;
-		this.desc = "";
+		this.desc = plugin.getConfig().getString("TOWNS.DEFAULT_DESCRIPTION");
 		FILE = file;
 		
 		players.add(owner);
@@ -56,7 +57,8 @@ public class Town {
 			YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 			this.ID = config.getInt("ID");
 			this.name = config.getString("name");
-			this.desc = config.getString("desc");
+			this.desc = config.getString("desc")!=null ? config.getString("desc") : 
+				plugin.getConfig().getString("TOWNS.DEFAULT_DESCRIPTION");
 			try {
 				this.owner = UUID.fromString(config.getString("owner"));
 			} catch (IllegalArgumentException e){
@@ -67,6 +69,9 @@ public class Town {
 			
 			for (String str : config.getStringList("players")){
 				players.add(UUID.fromString(str));
+			}
+			for (String str : config.getStringList("mods")){
+				mods.add(UUID.fromString(str));
 			}
 			
 			save();
@@ -106,8 +111,13 @@ public class Town {
 		for (UUID id : players){
 			pls.add(id.toString());
 		}
-		config.set("players", null);
 		config.set("players", pls);
+		
+		List<String> mds = new ArrayList<String>();
+		for (UUID id : mods){
+			mds.add(id.toString());
+		}
+		config.set("mods", mds);
 		
 		try {
 			config.save(FILE);
@@ -123,8 +133,19 @@ public class Town {
 		return false;
 	}
 	
+	public boolean isMod(UUID player){
+		for (UUID m : mods){
+			if (m.equals(player)) return true;
+		}
+		return false;
+	}
+	
 	public List<UUID> getPlayers(){
 		return players;
+	}
+	
+	public List<UUID> getMods(){
+		return mods;
 	}
 	
 	public boolean isOwner(UUID player){

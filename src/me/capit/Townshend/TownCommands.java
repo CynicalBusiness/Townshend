@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import me.capit.Townshend.town.Town;
 import me.capit.Townshend.town.Town.TownCreationException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -102,9 +104,20 @@ public class TownCommands implements CommandExecutor {
 							Town town = TownshendPlugin.getTownByName(args[1]);
 							if (town!=null){
 								Messager.sendRaw(s, TownshendPlugin.gHeader);
-								Messager.sendRaw(s, ChatColor.translateAlternateColorCodes('&',"&e"+town.getName()+"&f: Owned by &e"
-										+ Bukkit.getServer().getPlayer(town.getOwner()).getName()+"&f."));
-								Messager.sendRaw(s, ChatColor.GRAY+"\""+town.getDesc()+"\"");
+								Messager.sendRaw(s, ChatColor.YELLOW+town.getName()+": "+
+										ChatColor.GRAY+"\""+town.getDesc()+"\"");
+								String plist = "";
+								for (UUID id : town.getPlayers()){
+									OfflinePlayer p = Bukkit.getServer().getOfflinePlayer(id);
+									String color = p.isOnline() ? "a" : (p.isBanned() ? "c" : "f");
+									String tag = town.isOwner(id) ? plugin.getConfig().getString("TOWNS.OWNER_TAG") : 
+										(town.isMod(id) ? plugin.getConfig().getString("TOWNS.MODERATOR_TAG") : 
+											plugin.getConfig().getString("TOWNS.MEMBER_TAG"));
+									plist += "&"+color+tag+p.getName()+", ";
+								}
+								plist = plist.substring(0, plist.length()-2);
+								Messager.sendRaw(s, ChatColor.translateAlternateColorCodes('&', 
+										"&eMembers: &f"+plist));
 							} else {
 								Messager.sendError(s, "That town does not exist.");
 							}

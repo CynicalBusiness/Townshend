@@ -1,0 +1,5 @@
+TOWNS:
+  DEFAULT_DESCRIPTION: A new town.
+  MEMBER_TAG: ''
+  MODERATOR_TAG: '-'
+  OWNER_TAG: '='

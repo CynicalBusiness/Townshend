@@ -3,11 +3,13 @@ package me.capit.Townshend;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import me.capit.Townshend.town.Town;
 import me.capit.Townshend.town.Town.TownCreationException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -79,6 +81,10 @@ public class TownshendPlugin extends JavaPlugin {
 		
 		console.sendMessage(ChatColor.WHITE+"Wrapping up core data...");
 		
+		for (Town town : towns){
+			town.save();
+		}
+		
 		console.sendMessage(ChatColor.WHITE+"Wrapped up.");
 		
 		console.sendMessage(footer);
@@ -97,5 +103,26 @@ public class TownshendPlugin extends JavaPlugin {
 			if (town.getName().equalsIgnoreCase(name)) return town;
 		}
 		return null;
+	}
+	
+	public static Town getTownOfPlayer(UUID player){
+		for (Town town : towns){
+			if (town.hasPlayer(player)) return town;
+		}
+		return null;
+	}
+	
+	public static void deleteTown(Town town){
+		for (int i=0;i<towns.size();i++){
+			Town t = towns.get(i);
+			if (t.ID==town.ID){
+				towns.remove(i);
+				for (UUID id : t.getPlayers()){
+					Messager.sendWarning(Bukkit.getServer().getPlayer(id), "Your town was disbanded.");
+				}
+				town.FILE.delete();
+				break;
+			}
+		}
 	}
 }

@@ -10,3 +10,18 @@ commands:
     description: Basic Townshend command.
     usage: '/townshend help'
     aliases: ['town','t']
+    
+permissions:
+  townshend.*:
+    description: Global Townshend permission.
+    children:
+      - townshend.player
+      - townshend.admin
+  townshend.player.*:
+    description: Townshend player permissions.
+    children:
+      - townshend.player.create
+      - townshend.player.modify
+      - townshend.player.info
+      - townshend.player.join
+      - townshend.player.relations

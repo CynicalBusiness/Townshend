@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 
 public class Messager {
 	public enum MessageLevel{
-		INFO, DEBUG, WARNING, ERROR;
+		INFO, DEBUG, WARNING, ERROR, SUCCESS;
 		
 		public ChatColor color(){
 			switch(this){
@@ -13,8 +13,10 @@ public class Messager {
 				return ChatColor.YELLOW;
 			case ERROR:
 				return ChatColor.DARK_RED;
+			case SUCCESS:
+				return ChatColor.GREEN;
 			default:
-				return ChatColor.WHITE;
+				return ChatColor.GRAY;
 			}
 		}
 	}
@@ -39,6 +41,9 @@ public class Messager {
 	}
 	public static void sendError(CommandSender p, String msg){
 		send(MessageLevel.ERROR, p, msg);
+	}
+	public static void sendSuccess(CommandSender p, String msg){
+		send(MessageLevel.SUCCESS, p, msg);
 	}
 	
 }

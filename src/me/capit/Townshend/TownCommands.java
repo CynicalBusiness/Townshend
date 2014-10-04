@@ -32,7 +32,13 @@ public class TownCommands implements CommandExecutor {
 			pg1.put("delete", "Deletes your town if you currently own it.");
 			pg1.put("info [town=you]", "Provides information on a town.");
 			pg1.put("list [page=1]", "Lists all of the towns in order of ID.");
+			pg1.put("join [town]", "Joins the specified town");
+			pg1.put("leave", "Leaves your current town.");
 		help.add(pg1);
+		HashMap<String,String> pg2 = new HashMap<String,String>(); 
+			pg2.put("invite [player]", "Invites the player [player].");
+			pg2.put("kick [player]", "Kicks the player [player] from your town.");
+		help.add(pg2);
 	}
 	
 	@Override

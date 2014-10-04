@@ -104,16 +104,18 @@ public class TownCommands implements CommandExecutor {
 							Town town = TownshendPlugin.getTownByName(args[1]);
 							if (town!=null){
 								Messager.sendRaw(s, TownshendPlugin.gHeader);
-								Messager.sendRaw(s, ChatColor.YELLOW+town.getName()+": "+
+								Messager.sendRaw(s, "["+town.ID+"] "+
+										ChatColor.YELLOW+town.getName()+": "+
 										ChatColor.GRAY+"\""+town.getDesc()+"\"");
 								String plist = "";
+								plist += "&f("+town.getPlayers().size()+") ";
 								for (UUID id : town.getPlayers()){
 									OfflinePlayer p = Bukkit.getServer().getOfflinePlayer(id);
 									String color = p.isOnline() ? "a" : (p.isBanned() ? "c" : "f");
 									String tag = town.isOwner(id) ? plugin.getConfig().getString("TOWNS.OWNER_TAG") : 
 										(town.isMod(id) ? plugin.getConfig().getString("TOWNS.MODERATOR_TAG") : 
 											plugin.getConfig().getString("TOWNS.MEMBER_TAG"));
-									plist += "&"+color+tag+p.getName()+", ";
+									plist += "&"+color+tag+p.getName()+"&f, ";
 								}
 								plist = plist.substring(0, plist.length()-2);
 								Messager.sendRaw(s, ChatColor.translateAlternateColorCodes('&', 
@@ -123,8 +125,87 @@ public class TownCommands implements CommandExecutor {
 							}
 						}
 					}
+				} else if (args[0].equalsIgnoreCase("invite")){
+					if (s.hasPermission("townshend.player.modify")){
+						if (args.length==2){
+							Town town = TownshendPlugin.getTownOfPlayer(((Player) s).getUniqueId());
+							if (town.isInvited(args[1])){
+								town.invite(args[1].toUpperCase());
+								Messager.sendInfo(s, "Successfully invited '"+args[1]+"'.");
+							} else {
+								town.uninvite(args[1].toUpperCase());
+								Messager.sendInfo(s, "Successfully revoked "+args[1]+"'s invite.");
+							}
+						} else {
+							Messager.sendError(s, "Bad argument count: Expected /town invite [player]");
+						}
+					} else {
+						Messager.sendError(s, "Sorry, you can't invite players: not enough permission.");
+					}
+				} else if (args[0].equalsIgnoreCase("join")){
+					if (s.hasPermission("townshend.player.join")){
+						if (args.length==2){
+							Town town = TownshendPlugin.getTownOfPlayer(((Player) s).getUniqueId());
+							if (town==null){
+								Town dtown = TownshendPlugin.getTownByName(args[1]);
+								if (dtown!=null){
+									if (dtown.isInvited(s.getName().toUpperCase())){
+										Messager.sendInfo(s, "Successfully joined "+dtown.getName()+".");
+									} else {
+										Messager.sendError(s, "You have not been invited to this town!");
+									}
+								} else {
+									Messager.sendError(s, "No town with the name '"+args[1]+"' found.");
+								}
+							} else {
+								Messager.sendError(s, "You're already in a town!");
+							}
+						} else {
+							Messager.sendError(s, "Bad argument count: Expected /town invite [player]");
+						}
+					} else {
+						Messager.sendError(s, "You do not have permission to join a town.");
+					}
+				} else if (args[0].equalsIgnoreCase("leave")){
+					if (s.hasPermission("townshend.player.join")){
+						Town town = TownshendPlugin.getTownOfPlayer(((Player) s).getUniqueId());
+						if (town!=null){
+							if (!town.isOwner(((Player) s).getUniqueId())){
+								town.removePlayer(((Player) s).getUniqueId());
+							} else {
+								Messager.sendError(s, "You cannot leave a town you own!");
+							}
+						} else {
+							Messager.sendError(s, "You're not in a town!");
+						}
+					} else {
+						Messager.sendError(s, "You do not have permission to leave a town.");
+					}
+				} else if (args[0].equalsIgnoreCase("kick")){
+					Town town = TownshendPlugin.getTownOfPlayer(((Player) s).getUniqueId());
+					if (s.hasPermission("townshend.player.modify") && town.isMod(((Player) s).getUniqueId())){
+						if (args.length==2){
+							@SuppressWarnings("deprecation")
+							OfflinePlayer toKick = plugin.getServer().getOfflinePlayer(args[1]); 
+							if (toKick!=null && town.hasPlayer(toKick.getUniqueId())){
+								UUID id = toKick.getUniqueId();
+								if ((town.isMod(id) && town.isOwner(((Player) s).getUniqueId())) || !town.isMod(id)){
+									town.removePlayer(id);
+									Messager.sendInfo(s, "Successfully kicked "+toKick.getName()+".");
+								} else {
+									Messager.sendError(s, "Only the owner may kick moderators.");
+								}
+							} else {
+								Messager.sendError(s, "That player is not currently in your town.");
+							}
+						} else {
+							Messager.sendError(s, "Bad argument count: Expected /town kick [player]");
+						}
+					} else {
+						Messager.sendError(s, "You do not have permission to kick players.");
+					}
 				} else {
-					Messager.sendError(s, "Unknown argument.");
+					Messager.sendError(s, "Unknown argument: try /town help.");
 				}
 			} else {
 				return onCommand(s,cmd,lbl,new String[]{"help"});

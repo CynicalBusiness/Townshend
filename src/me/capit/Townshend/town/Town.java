@@ -35,6 +35,8 @@ public class Town {
 	private List<UUID> players = new ArrayList<UUID>();
 	private List<UUID> mods = new ArrayList<UUID>();
 	
+	private List<String> invites = new ArrayList<String>();
+	
 	// New Town
 	public Town(TownshendPlugin plugin, UUID owner, String name) throws TownCreationException, IOException{
 		ID = TownshendPlugin.getNextID();
@@ -59,6 +61,7 @@ public class Town {
 			this.name = config.getString("name");
 			this.desc = config.getString("desc")!=null ? config.getString("desc") : 
 				plugin.getConfig().getString("TOWNS.DEFAULT_DESCRIPTION");
+			this.invites = config.getStringList("invites");
 			try {
 				this.owner = UUID.fromString(config.getString("owner"));
 			} catch (IllegalArgumentException e){
@@ -96,11 +99,40 @@ public class Town {
 		this.desc = desc;
 	}
 	
+	public List<String> getInvites(){
+		return invites;
+	}
+	
+	public boolean isInvited(String pname){
+		return invites.contains(pname);
+	}
+	
+	public void invite(String pname){
+		if (!isInvited(pname)) invites.add(pname);
+	}
+	
+	public void uninvite(String pname){
+		invites.remove(pname);
+	}
+	
+	public boolean playerInTown(UUID player){
+		return players.contains(player);
+	}
+	
+	public void addPlayer(UUID player){
+		if (!playerInTown(player)) players.add(player);
+	}
+	
+	public void removePlayer(UUID player){
+		players.remove(player);
+	}
+	
 	public void save(){
 		YamlConfiguration config = YamlConfiguration.loadConfiguration(FILE);
 		config.set("ID", ID);
 		config.set("name", name);
 		config.set("desc", desc);
+		config.set("invites", invites);
 		if (owner!=null){
 			config.set("owner", owner.toString());
 		} else {
@@ -134,6 +166,7 @@ public class Town {
 	}
 	
 	public boolean isMod(UUID player){
+		if (isOwner(player)) return true;
 		for (UUID m : mods){
 			if (m.equals(player)) return true;
 		}

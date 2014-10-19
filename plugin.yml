@@ -10,6 +10,10 @@ commands:
     description: Basic Townshend command.
     usage: '/townshend help'
     aliases: ['town','t']
+  group:
+    description: Basic Group command.
+    usage: '/group help'
+    aliases: ['g']
     
 permissions:
   townshend.*:
@@ -25,3 +29,10 @@ permissions:
       - townshend.player.info
       - townshend.player.join
       - townshend.player.relations
+  townshend.group.*:
+    description: Townshend group permissions.
+    children:
+      - townshend.group.create
+      - townshend.group.delete
+      - townshend.group.add
+      - townshend.group.remove

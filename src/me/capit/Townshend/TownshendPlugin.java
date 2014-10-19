@@ -2,10 +2,12 @@ package me.capit.Townshend;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import me.capit.Townshend.aegis.Aegis;
+import me.capit.Townshend.group.Group;
+import me.capit.Townshend.group.GroupCommands;
 import me.capit.Townshend.town.Town;
 import me.capit.Townshend.town.Town.TownCreationException;
 
@@ -15,7 +17,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TownshendPlugin extends JavaPlugin {
-	public static List<Town> towns = new ArrayList<Town>();
+	public static ArrayList<Town> towns = new ArrayList<Town>();
+	public static ArrayList<Aegis> aegises = new ArrayList<Aegis>();
+	public static ArrayList<Group> groups = new ArrayList<Group>();
 	public static Logger logger = null;
 	public static ConsoleCommandSender console = null;
 	
@@ -37,6 +41,7 @@ public class TownshendPlugin extends JavaPlugin {
 	public static File townsDir = null;
 	
 	public TownCommands commands = null;
+	public GroupCommands gcmds = null;
 	
 	@Override
 	public void onEnable(){
@@ -69,6 +74,8 @@ public class TownshendPlugin extends JavaPlugin {
 		console.sendMessage(ChatColor.WHITE+"Hooking "+ChatColor.YELLOW+"commands...");
 		commands = new TownCommands(this);
 		this.getCommand("townshend").setExecutor(commands);
+		gcmds = new GroupCommands(this);
+		this.getCommand("group").setExecutor(gcmds);
 		
 		console.sendMessage(ChatColor.WHITE+"Done loading!");
 		
@@ -124,5 +131,34 @@ public class TownshendPlugin extends JavaPlugin {
 				break;
 			}
 		}
+	}
+	
+	public static ArrayList<Group> getGroupsOfPlayer(UUID player){
+		ArrayList<Group> gps = new ArrayList<Group>();
+		for (Group g : groups){
+			if (g.isMember(player)){
+				gps.add(g);
+			}
+		}
+		return gps;
+	}
+	
+	public static ArrayList<Group> getGroupsOwnedByPlayer(UUID player){
+		ArrayList<Group> gps = new ArrayList<Group>();
+		for (Group g : groups){
+			if (g.owner==player){
+				gps.add(g);
+			}
+		}
+		return gps;
+	}
+	
+	public static Group getGroupByName(String name){
+		for (Group g : groups){
+			if (g.name.equalsIgnoreCase(name)){
+				return g;
+			}
+		}
+		return null;
 	}
 }

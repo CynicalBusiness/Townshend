@@ -2,6 +2,8 @@ package me.capit.Townshend.aegis;
 
 import java.util.ArrayList;
 
+import me.capit.Townshend.TownshendPlugin;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -9,12 +11,16 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 public class AegisHandler implements Listener {
-	public ArrayList<Aegis> aegises = new ArrayList<Aegis>();
+	TownshendPlugin plugin;
+	
+	public AegisHandler(TownshendPlugin p){
+		plugin=p;
+	}
 	
 	@EventHandler(priority=EventPriority.LOW)
 	public void onBlockBreak(BlockBreakEvent e){
 		ArrayList<Aegis> protections = new ArrayList<Aegis>();
-		for (Aegis a : aegises){
+		for (Aegis a : TownshendPlugin.aegises){
 			if (a.locationProtectedByAeigs(e.getBlock().getLocation())){
 				protections.add(a);
 			}

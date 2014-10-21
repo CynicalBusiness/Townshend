@@ -1,5 +1,6 @@
 package me.capit.Townshend.group;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -45,9 +46,18 @@ public class GroupCommands implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("create")){
 					if (args.length==2 && s.hasPermission("townshend.group.create")){
 						if (TownshendPlugin.getGroupByName(args[1])==null){
-							Group group = new Group(((Player) s).getUniqueId(), args[1]);
-							TownshendPlugin.groups.add(group);
-							Messager.sendInfo(s, "Successfully created group "+group.name+".");
+							if (args[1].matches("^((?![\\.\\#\\&\\[\\]\\\\\\<\\>\\*\\?\\/\\$\\!\\\'\\\"\\`\\:\\@\\+\\=\\|]).)*$")){
+								try {
+									Group group = new Group(plugin, ((Player) s).getUniqueId(), args[1]);
+									TownshendPlugin.groups.add(group);
+									Messager.sendInfo(s, "Successfully created group "+group.name+".");
+								} catch (IOException e) {
+									e.printStackTrace();
+									Messager.sendError(s, "IO Exception while reading group.");
+								}
+							} else {
+								Messager.sendError(s, "Invalid name.");
+							}
 						} else {
 							Messager.sendError(s, "Group already exists.");
 						}
@@ -59,6 +69,7 @@ public class GroupCommands implements CommandExecutor {
 						Group group = TownshendPlugin.getGroupByName(args[1]);
 						if (group!=null && group.owner==((Player) s).getUniqueId()){
 							TownshendPlugin.groups.remove(group);
+							group.FILE.delete();
 							Messager.sendInfo(s, "Successfully deleted group.");
 						} else {
 							Messager.sendError(s, "Group does not exist or you do not own that group.");
@@ -68,12 +79,12 @@ public class GroupCommands implements CommandExecutor {
 					}
 				} else if (args[0].equalsIgnoreCase("add")){
 					if (args.length==3 && s.hasPermission("townshend.group.add")){
-						Group group = TownshendPlugin.getGroupByName(args[1]);
-						if (group!=null && group.owner==((Player) s).getUniqueId()){
-							OfflinePlayer targ = plugin.getServer().getOfflinePlayer(args[2]);
+						Group group = TownshendPlugin.getGroupByName(args[2]);
+						if (group!=null && group.owner.toString().equals(((Player) s).getUniqueId().toString())){
+							OfflinePlayer targ = plugin.getServer().getOfflinePlayer(args[1]);
 							if (targ!=null){
 								group.addMember(targ.getUniqueId());
-								Messager.sendError(s, "Successfully added "+targ.getName()+" to group.");
+								Messager.sendInfo(s, "Successfully added "+targ.getName()+" to group.");
 							} else {
 								Messager.sendError(s, "Unable to locate player.");
 							}
@@ -85,12 +96,12 @@ public class GroupCommands implements CommandExecutor {
 					}
 				} else if (args[0].equalsIgnoreCase("remove")){
 					if (args.length==3 && s.hasPermission("townshend.group.remove")){
-						Group group = TownshendPlugin.getGroupByName(args[1]);
-						if (group!=null && group.owner==((Player) s).getUniqueId()){
-							OfflinePlayer targ = plugin.getServer().getOfflinePlayer(args[2]);
+						Group group = TownshendPlugin.getGroupByName(args[2]);
+						if (group!=null && group.owner.toString().equals(((Player) s).getUniqueId().toString())){
+							OfflinePlayer targ = plugin.getServer().getOfflinePlayer(args[1]);
 							if (targ!=null){
 								group.removeMember(targ.getUniqueId());
-								Messager.sendError(s, "Successfully removed "+targ.getName()+" from group.");
+								Messager.sendInfo(s, "Successfully removed "+targ.getName()+" from group.");
 							} else {
 								Messager.sendError(s, "Unable to locate player.");
 							}

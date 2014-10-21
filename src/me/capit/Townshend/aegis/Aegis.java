@@ -2,6 +2,7 @@ package me.capit.Townshend.aegis;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Location;
@@ -24,10 +25,12 @@ public class Aegis implements Serializable {
 		points.put(Material.STONE, 8); // TODO Make this configurable.
 	}
 	
+	public final int ID;
+	
 	private final Location center;
 	private final int radius; // Height * 8
 	private final AegisModifier modifier;
-	private final String town;
+	private final String group;
 	
 	private final Chest chest;
 	private final Sign sign;
@@ -43,8 +46,9 @@ public class Aegis implements Serializable {
 		IRON; // TODO!
 	}
 	
-	public Aegis(Location loc, String town) throws AegisCreationException{
-		this.town = town;
+	public Aegis(Location loc, String group, int ID) throws AegisCreationException{
+		this.ID = ID;
+		this.group = group;
 		Block sign = loc.getBlock();
 		if (sign.getType()!=Material.WALL_SIGN){throw new AegisCreationException("Invalid creation call.");}
 		
@@ -75,16 +79,24 @@ public class Aegis implements Serializable {
 		updateSign();
 	}
 	
+	public Aegis(Location loc, String group) throws AegisCreationException {
+		this(loc,group,(int) (new Date().getTime()));
+	}
+	
 	public int getRadius(){
 		return radius;
 	}
 	
-	public String getTownName(){
-		return town;
+	public String getGroup(){
+		return group;
 	}
 	
 	public Location getCenter(){
 		return center;
+	}
+	
+	public Location getSignLoc(){
+		return sign.getLocation();
 	}
 	
 	public AegisModifier getModifier(){
@@ -97,7 +109,7 @@ public class Aegis implements Serializable {
 	
 	public void updateSign(){
 		sign.setLine(0, modifier.toString().toUpperCase()+" AEGIS");
-		sign.setLine(1, town);
+		sign.setLine(1, "Group");
 		sign.setLine(2, hp+" HP");
 		sign.setLine(3, "");
 	}
